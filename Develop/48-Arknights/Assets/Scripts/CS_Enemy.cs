@@ -4,14 +4,26 @@ using UnityEngine;
 
 public class CS_Enemy : MonoBehaviour {
     enum State {
-        Move,
-        Attack,
+        Move = 0,
+        Attack = 1,
+        Dead = 9,
     }
 
     [SerializeField] SpriteRenderer mySpriteRenderer;
     private State myState;
     private List<Vector3> myPath;
     [SerializeField] float myMoveSpeed = 10;
+    [SerializeField] Animator myAnimator = null;
+
+    private CS_Player myTargetPlayer;
+
+    [Header ("Status")]
+    [SerializeField] int myStatus_MaxHealth = 1000;
+    private int myCurrentHealth;
+    [SerializeField] int myStatus_Attack = 200;
+    [SerializeField] float myStatus_AttackTime = 0.5f;
+    private float myAttackTimer = 0;
+
 
     public void Init () {
         // get path
@@ -21,6 +33,10 @@ public class CS_Enemy : MonoBehaviour {
         myPath.RemoveAt (0);
         // set state to move
         myState = State.Move;
+        myAnimator.SetInteger ("State", 0);
+
+        // init health
+        myCurrentHealth = myStatus_MaxHealth;
 
         // active the enemy
         this.gameObject.SetActive (true);
@@ -30,6 +46,52 @@ public class CS_Enemy : MonoBehaviour {
         if (myState == State.Move) {
             Update_Move ();
         }
+
+        Update_Attack ();
+    }
+
+    private void Update_Attack () {
+
+        // update attack timer
+        if (myAttackTimer > 0) {
+            myAttackTimer -= Time.fixedDeltaTime;
+            return;
+        }
+
+        // if enemy is gone, remove target
+        if (myTargetPlayer != null && myTargetPlayer.gameObject.activeSelf == false) {
+            myTargetPlayer = null;
+        }
+
+        // if i dont have a target, go through enemy list to find a target
+        if (myTargetPlayer == null) {
+            List<CS_Player> t_playerList = CS_GameManager.Instance.GetPlayerList ();
+            foreach (CS_Player f_player in t_playerList) {
+                if (f_player.gameObject.activeSelf == false) {
+                    continue;
+                }
+                if (Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f) {
+                    myTargetPlayer = f_player;
+                    break;
+                }
+            }
+        }
+
+        // if no enemy in range, dont attack
+        if (myTargetPlayer == null) {
+            if (myState != State.Dead) {
+                myState = State.Move;
+                myAnimator.SetInteger ("State", 0);
+            }
+            return;
+        }
+
+        // attack enemy
+        myTargetPlayer.TakeDamage (myStatus_Attack);
+        myAttackTimer += myStatus_AttackTime;
+        myAnimator.SetTrigger ("Attack");
+        myState = State.Attack;
+        myAnimator.SetInteger ("State", 1);
     }
 
     public void Update_Move () {
@@ -38,7 +100,7 @@ public class CS_Enemy : MonoBehaviour {
             // hide enemy
             this.gameObject.SetActive (false);
             // tell manager lose enemy
-            CS_EnemyManager.Instance.LoseEnemy ();
+            CS_EnemyManager.Instance.LoseEnemy (this);
             // lose life
             CS_GameManager.Instance.LoseLife ();
             return;
@@ -74,6 +136,20 @@ public class CS_Enemy : MonoBehaviour {
             } else {
                 mySpriteRenderer.flipX = true;
             }
+        }
+    }
+
+    public void TakeDamage (int g_damage) {
+        myCurrentHealth -= g_damage;
+
+        if (myCurrentHealth <= 0) {
+            myCurrentHealth = 0;
+            // set dead
+            myState = State.Dead;
+            // hide enemy
+            this.gameObject.SetActive (false);
+            // tell manager lose enemy
+            CS_EnemyManager.Instance.LoseEnemy (this);
         }
     }
 }

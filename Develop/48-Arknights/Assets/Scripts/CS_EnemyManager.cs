@@ -14,6 +14,7 @@ public class CS_EnemyManager : MonoBehaviour {
     private float myTimer = -1;
     private int myEnemySpawnIndex = -1;
     private int myEnemyCount = -1;
+    private List<CS_Enemy> myEnemyList = new List<CS_Enemy> ();
 
     private void Awake () {
         if (instance != null && instance != this) {
@@ -51,8 +52,12 @@ public class CS_EnemyManager : MonoBehaviour {
         // generate enemy
         GameObject t_enemyObject = Instantiate (myEnemyPrefab);
         t_enemyObject.SetActive (false);
+        // get enemy script
+        CS_Enemy t_enemy = t_enemyObject.GetComponent<CS_Enemy> ();
         // init enemy
-        t_enemyObject.GetComponent<CS_Enemy> ().Init ();
+        t_enemy.Init ();
+        // add enemy to list
+        myEnemyList.Add (t_enemy);
 
         // stop spawn process if all listed are finished
         myEnemySpawnIndex++;
@@ -76,8 +81,16 @@ public class CS_EnemyManager : MonoBehaviour {
         return t_pathList;
     }
 
-    public void LoseEnemy () {
+    public void LoseEnemy (CS_Enemy g_enemy) {
+        // update enemy count
         myEnemyCount++;
         CS_UIManager.Instance.SetCount (myEnemyCount, myEnemySpawnTimeArray.Length);
+
+        // remove enemy from list
+        myEnemyList.Remove (g_enemy);
+    }
+
+    public List<CS_Enemy> GetEnemyList () {
+        return myEnemyList;
     }
 }

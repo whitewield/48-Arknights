@@ -10,6 +10,8 @@ public class CS_GameManager : MonoBehaviour {
     [SerializeField] int myMaxLife = 10;
     private int myCurrentLife;
 
+    [SerializeField] List<CS_Player> myPlayerList = new List<CS_Player> ();
+
     private void Awake () {
         if (instance != null && instance != this) {
             Destroy (this.gameObject);
@@ -26,5 +28,9 @@ public class CS_GameManager : MonoBehaviour {
     public void LoseLife () {
         myCurrentLife--;
         CS_UIManager.Instance.SetLife (myCurrentLife);
+    }
+
+    public List<CS_Player> GetPlayerList () {
+        return myPlayerList;
     }
 }
