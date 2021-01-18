@@ -8,6 +8,7 @@ public class CS_Enemy : MonoBehaviour {
         Attack,
     }
 
+    [SerializeField] SpriteRenderer mySpriteRenderer;
     private State myState;
     private List<Vector3> myPath;
     [SerializeField] float myMoveSpeed = 10;
@@ -64,5 +65,15 @@ public class CS_Enemy : MonoBehaviour {
 
         // set position
         this.transform.position = t_nextPosition;
+
+        // update animation
+        // only flip if moving horizontally
+        if (Mathf.Abs (t_direction.x) > Mathf.Abs (t_direction.y)) {
+            if (t_direction.x > 0) {
+                mySpriteRenderer.flipX = false;
+            } else {
+                mySpriteRenderer.flipX = true;
+            }
+        }
     }
 }
