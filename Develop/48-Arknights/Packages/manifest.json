@@ -1,5 +1,10 @@
 {
   "dependencies": {
+    "com.unity.2d.animation": "3.2.6",
+    "com.unity.2d.common": "2.0.2",
+    "com.unity.2d.path": "2.0.6",
+    "com.unity.2d.pixel-perfect": "2.0.4",
+    "com.unity.2d.spriteshape": "3.0.14",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.rider": "1.1.4",
     "com.unity.ide.vscode": "1.2.1",

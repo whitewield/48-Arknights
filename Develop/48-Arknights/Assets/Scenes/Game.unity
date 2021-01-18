@@ -3547,6 +3547,7 @@ MonoBehaviour:
   - {fileID: 370125302}
   - {fileID: 1595444190}
   - {fileID: 2061666289}
+  myPathRandomness: 0.2
   myEnemySpawnTimeArray:
   - 5
   - 3

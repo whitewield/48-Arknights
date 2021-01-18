@@ -9,6 +9,7 @@ public class CS_EnemyManager : MonoBehaviour {
 
     [SerializeField] GameObject myEnemyPrefab;
     [SerializeField] Transform[] myPathTransformArray;
+    [SerializeField] float myPathRandomness = 0.2f;
     [SerializeField] float[] myEnemySpawnTimeArray;
     private float myTimer = -1;
     private int myEnemySpawnIndex = -1;
@@ -66,7 +67,11 @@ public class CS_EnemyManager : MonoBehaviour {
     public List<Vector3> GetPath () {
         List<Vector3> t_pathList = new List<Vector3> ();
         foreach (Transform t_transform in myPathTransformArray) {
-            t_pathList.Add (t_transform.position);
+            // create some randomness for the path
+            Vector3 f_position = t_transform.position;
+            f_position.x = Random.Range (-myPathRandomness, myPathRandomness) + f_position.x;
+            f_position.z = Random.Range (-myPathRandomness, myPathRandomness) + f_position.z;
+            t_pathList.Add (f_position);
         }
         return t_pathList;
     }
