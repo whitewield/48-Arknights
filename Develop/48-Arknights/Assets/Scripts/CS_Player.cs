@@ -3,47 +3,77 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CS_Player : MonoBehaviour {
-    enum State {
-        Idle,
-        Attack,
-        Dead,
+    public enum State {
+        Idle = 0,
+        Attack = 1,
+        Dead = 9,
+        Arrange = 10,
     }
 
-    private State myState;
+    private State myState = State.Arrange;
     [SerializeField] Transform myRangeParent = null;
     [SerializeField] Transform myRotateTransform = null;
     private CS_Enemy myTargetEnemy;
 
-    [SerializeField] Animator myAnimator = null;
+    [SerializeField] protected Animator myAnimator = null;
 
     [SerializeField] Transform myTransform_HPBar = null;
 
     [Header ("Status")]
+    [SerializeField] CS_Tile.Type myTileType = CS_Tile.Type.Ground;
     [SerializeField] int myStatus_MaxHealth = 2400;
     private int myCurrentHealth;
-    [SerializeField] int myStatus_Attack = 700;
-    [SerializeField] float myStatus_AttackTime = 0.5f;
-    private float myAttackTimer = 0;
+    [SerializeField] protected int myStatus_Attack = 700;
+    [SerializeField] protected float myStatus_AttackTime = 0.5f;
+    protected float myAttackTimer = 0;
 
-    private void Start () {
-        Init ();
+    public void Arrange () {
+        myState = State.Arrange;
     }
 
     public void Init () {
+        myState = State.Idle;
+        // hide highlight
+        HideHighlight ();
         // face camera
-        myRotateTransform.rotation = Quaternion.identity;
-
+        FaceCamera ();
         // init health
         myCurrentHealth = myStatus_MaxHealth;
         myTransform_HPBar.localScale = Vector3.one;
     }
 
     private void FixedUpdate () {
+        Debug.Log (myState);
+        if (myState == State.Arrange || myState == State.Dead) {
+            return;
+        }
         Update_Attack ();
     }
 
-    private void Update_Attack () {
+    private void Update () {
+        if (myState == State.Arrange) {
+            FaceCamera ();
+        }
+    }
 
+    private void FaceCamera () {
+        // face camera
+        myRotateTransform.rotation = Quaternion.identity;
+    }
+
+    public void ShowHighlight () {
+        for (int i = 0; i < myRangeParent.childCount; i++) {
+            myRangeParent.GetChild (i).gameObject.SetActive (true);
+        }
+    }
+
+    public void HideHighlight () {
+        for (int i = 0; i < myRangeParent.childCount; i++) {
+            myRangeParent.GetChild (i).gameObject.SetActive (false);
+        }
+    }
+
+    protected virtual void Update_Attack () {
         // update attack timer
         if (myAttackTimer > 0) {
             myAttackTimer -= Time.fixedDeltaTime;
@@ -59,7 +89,7 @@ public class CS_Player : MonoBehaviour {
         if (myTargetEnemy == null) {
             List<CS_Enemy> t_enemyList = CS_EnemyManager.Instance.GetEnemyList ();
             foreach (CS_Enemy f_enemy in t_enemyList) {
-                if (CheckInRange (f_enemy) == true) {
+                if (CheckInRange (f_enemy.transform) == true) {
                     myTargetEnemy = f_enemy;
                     break;
                 }
@@ -72,7 +102,7 @@ public class CS_Player : MonoBehaviour {
         }
 
         // if the enemy move out of the range, stop attacking this enemy
-        if (CheckInRange (myTargetEnemy) == false) {
+        if (CheckInRange (myTargetEnemy.transform) == false) {
             myTargetEnemy = null;
             return;
         }
@@ -83,8 +113,8 @@ public class CS_Player : MonoBehaviour {
         myAnimator.SetTrigger ("Attack");
     }
 
-    private bool CheckInRange (CS_Enemy g_enemy) {
-        Vector3 t_position = g_enemy.transform.position;
+    protected bool CheckInRange (Transform g_transform) {
+        Vector3 t_position = g_transform.position;
 
         for (int i = 0; i < myRangeParent.childCount; i++) {
             Vector3 t_rangeCenter = myRangeParent.GetChild (i).position;
@@ -108,7 +138,23 @@ public class CS_Player : MonoBehaviour {
             this.gameObject.SetActive (false);
         }
 
+        if (myCurrentHealth > myStatus_MaxHealth) {
+            myCurrentHealth = myStatus_MaxHealth;
+        }
+
         // update HP bar ui
-        myTransform_HPBar.localScale = new Vector3 ((float)myCurrentHealth / myStatus_MaxHealth, 1, 1);
+        myTransform_HPBar.localScale = new Vector3 (GetHealthPercent (), 1, 1);
+    }
+
+    public float GetHealthPercent () {
+        return (float)myCurrentHealth / myStatus_MaxHealth;
+    }
+
+    public CS_Tile.Type GetTileType () {
+        return myTileType;
+    }
+
+    public State GetState () {
+        return myState;
     }
 }

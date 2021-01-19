@@ -8,7 +8,7 @@ public class CS_Highlight : MonoBehaviour {
 
 
     void Start () {
-        myMaterial = this.GetComponent<MeshRenderer> ().material;
+        myMaterial = myMeshRenderer.material;
     }
 
     // Update is called once per frame

@@ -15,6 +15,9 @@ public class CS_Enemy : MonoBehaviour {
     [SerializeField] float myMoveSpeed = 10;
     [SerializeField] Animator myAnimator = null;
 
+    [SerializeField] Transform myTransform_HPBar = null;
+    [SerializeField] GameObject myObject_HPCanvas = null;
+
     private CS_Player myTargetPlayer;
 
     [Header ("Status")]
@@ -37,6 +40,8 @@ public class CS_Enemy : MonoBehaviour {
 
         // init health
         myCurrentHealth = myStatus_MaxHealth;
+        myTransform_HPBar.localScale = Vector3.one;
+        myObject_HPCanvas.SetActive (false);
 
         // active the enemy
         this.gameObject.SetActive (true);
@@ -67,7 +72,9 @@ public class CS_Enemy : MonoBehaviour {
         if (myTargetPlayer == null) {
             List<CS_Player> t_playerList = CS_GameManager.Instance.GetPlayerList ();
             foreach (CS_Player f_player in t_playerList) {
-                if (f_player.gameObject.activeSelf == false) {
+                if (f_player == null || f_player.gameObject.activeSelf == false ||
+                    f_player.GetState () == CS_Player.State.Dead ||
+                    f_player.GetState () == CS_Player.State.Arrange) {
                     continue;
                 }
                 if (Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f) {
@@ -151,5 +158,10 @@ public class CS_Enemy : MonoBehaviour {
             // tell manager lose enemy
             CS_EnemyManager.Instance.LoseEnemy (this);
         }
+
+        // active the canvas
+        myObject_HPCanvas.SetActive (true);
+        // update HP bar ui
+        myTransform_HPBar.localScale = new Vector3 ((float)myCurrentHealth / myStatus_MaxHealth, 1, 1);
     }
 }

@@ -27,4 +27,8 @@ public class CS_UIManager : MonoBehaviour {
     public void SetCount (int g_current, int g_total) {
         myText_Count.text = g_current.ToString("0") + "/" + g_total.ToString ("0");
     }
+
+    public void OnButtonPlayer (int g_index) {
+        CS_GameManager.Instance.SetMyCurrentPlayer (g_index);
+    }
 }
