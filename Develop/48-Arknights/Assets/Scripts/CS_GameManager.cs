@@ -62,6 +62,9 @@ public class CS_GameManager : MonoBehaviour {
         myCurrentPlayer.gameObject.SetActive (true);
         myCurrentPlayer.Arrange ();
         myCurrentPlayer.ShowHighlight ();
+
+        // set slow mode
+        Time.timeScale = 0.1f;
     }
 
     public void DragPlayer () {
@@ -167,6 +170,8 @@ public class CS_GameManager : MonoBehaviour {
                 // init player
                 myCurrentPlayer.Init ();
                 myCurrentPlayer = null;
+                // set slow mode back
+                Time.timeScale = 1f;
                 return;
             }
         }
@@ -183,6 +188,11 @@ public class CS_GameManager : MonoBehaviour {
     public void LoseLife () {
         myCurrentLife--;
         CS_UIManager.Instance.SetLife (myCurrentLife);
+
+        if (myCurrentLife <= 0) {
+            CS_UIManager.Instance.ShowPageFail ();
+            Time.timeScale = 0;
+        }
     }
 
     public List<CS_Player> GetPlayerList () {

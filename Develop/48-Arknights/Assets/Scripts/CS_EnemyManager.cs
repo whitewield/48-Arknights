@@ -86,6 +86,10 @@ public class CS_EnemyManager : MonoBehaviour {
         myEnemyCount++;
         CS_UIManager.Instance.SetCount (myEnemyCount, myEnemySpawnTimeArray.Length);
 
+        if (myEnemyCount == myEnemySpawnTimeArray.Length) {
+            CS_UIManager.Instance.ShowPageEnd ();
+        }
+
         // remove enemy from list
         myEnemyList.Remove (g_enemy);
     }

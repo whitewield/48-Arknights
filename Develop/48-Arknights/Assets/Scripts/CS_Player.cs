@@ -19,6 +19,11 @@ public class CS_Player : MonoBehaviour {
 
     [SerializeField] Transform myTransform_HPBar = null;
 
+    [SerializeField] protected GameObject myEffectPrefab = null;
+    protected CS_Effect myEffect = null;
+
+    [SerializeField] protected AudioSource myAudioSource_Attack;
+
     [Header ("Status")]
     [SerializeField] CS_Tile.Type myTileType = CS_Tile.Type.Ground;
     [SerializeField] int myStatus_MaxHealth = 2400;
@@ -40,6 +45,11 @@ public class CS_Player : MonoBehaviour {
         // init health
         myCurrentHealth = myStatus_MaxHealth;
         myTransform_HPBar.localScale = Vector3.one;
+        // init effect
+        if (myEffect == null) {
+            myEffect = Instantiate (myEffectPrefab).GetComponent<CS_Effect> ();
+            myEffect.Kill ();
+        }
     }
 
     private void FixedUpdate () {
@@ -104,8 +114,17 @@ public class CS_Player : MonoBehaviour {
         // if the enemy move out of the range, stop attacking this enemy
         if (CheckInRange (myTargetEnemy.transform) == false) {
             myTargetEnemy = null;
+            Debug.Log ("out of range");
             return;
         }
+
+        // play sfx
+        myAudioSource_Attack.Play ();
+
+        // play effect
+        myEffect.Kill ();
+        myEffect.transform.position = myTargetEnemy.transform.position;
+        myEffect.gameObject.SetActive (true);
 
         // attack enemy
         myTargetEnemy.TakeDamage (myStatus_Attack);

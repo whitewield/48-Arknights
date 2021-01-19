@@ -46,11 +46,25 @@ public class CS_Player_Healer : CS_Player {
             return;
         }
 
+        // if the player is full health, dont set it as target
+        if (myTargetPlayer.GetHealthPercent () >= 1) {
+            myTargetPlayer = null;
+            return;
+        }
+
         // if the enemy move out of the range, stop attacking this enemy
         if (CheckInRange (myTargetPlayer.transform) == false) {
             myTargetPlayer = null;
             return;
         }
+
+        // play sfx
+        myAudioSource_Attack.Play ();
+
+        // play effect
+        myEffect.Kill ();
+        myEffect.transform.position = myTargetPlayer.transform.position;
+        myEffect.gameObject.SetActive (true);
 
         // attack enemy
         myTargetPlayer.TakeDamage (myStatus_Attack * -1);

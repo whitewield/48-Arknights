@@ -13,6 +13,6 @@ public class CS_Highlight : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        myMaterial.mainTextureOffset = new Vector2 (Time.time, 0);
+        myMaterial.mainTextureOffset = new Vector2 (Time.time * 10, 0);
     }
 }

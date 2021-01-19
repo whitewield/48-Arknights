@@ -20,6 +20,8 @@ public class CS_Enemy : MonoBehaviour {
 
     private CS_Player myTargetPlayer;
 
+    [SerializeField] AudioSource myAudioSource_Attack;
+
     [Header ("Status")]
     [SerializeField] int myStatus_MaxHealth = 1000;
     private int myCurrentHealth;
@@ -92,6 +94,9 @@ public class CS_Enemy : MonoBehaviour {
             }
             return;
         }
+
+        // play sfx
+        myAudioSource_Attack.Play ();
 
         // attack enemy
         myTargetPlayer.TakeDamage (myStatus_Attack);
